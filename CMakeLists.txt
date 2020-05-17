@@ -30,3 +30,5 @@ add_def(ALSYS_LIBRARY_TYPE)
 
 link_generic_module_libraries()
 register_pragma_module(${PROJ_NAME})
+
+add_dependencies(${PROJ_NAME} prosper_vulkan prosper)

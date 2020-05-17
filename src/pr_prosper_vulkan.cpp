@@ -7,7 +7,7 @@
 
 extern "C"
 {
-	DLLPROSPER_VK bool initialize_render_api(const std::string &engineName,bool enableValidation,std::shared_ptr<prosper::IPrContext> &outContext,std::string &errMsg)
+	__declspec(dllexport) bool initialize_render_api(const std::string &engineName,bool enableValidation,std::shared_ptr<prosper::IPrContext> &outContext,std::string &errMsg)
 	{
 		outContext = prosper::VlkContext::Create(engineName,enableValidation);
 		return true;

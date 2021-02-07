@@ -1,0 +1,2 @@
+pragma_install_lib("${DEPENDENCY_PROSPER_VULKAN_LIBRARY}" "modules/graphics/vulkan/" OPTIONAL)
+pragma_install_file("${CMAKE_CURRENT_BINARY_DIR}/modules/pr_prosper_vulkan/${CONFIG_BUILD_TYPE}/pr_prosper_vulkan${OS_LIB_BIN_EXT}" "modules/graphics/vulkan/" OPTIONAL)

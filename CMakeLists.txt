@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+set(VERSION 3.12)
 
 include("../CMakeShared.txt")
 
@@ -46,8 +46,8 @@ search_lib_recursive(DEPENDENCY_GLSLANG_LIBRARY external_libs/prosper_vulkan/thi
 
 set(VULKAN_SDK "$ENV{VULKAN_SDK}" CACHE INTERNAL "Path to Vulkan SDK.")
 
-set(DEPENDENCY_VULKAN_INCLUDE "${VULKAN_SDK}/Include" CACHE PATH "Path to include directory.")
 if(WIN32)
+	set(DEPENDENCY_VULKAN_INCLUDE "${VULKAN_SDK}/Include" CACHE PATH "Path to include directory.")
 	search_lib_recursive(DEPENDENCY_SPIRV_TOOLS_LIBRARY third_party_libs/vulkan/spirv-tools/source/${BINARY_PRAGMA_DIR} SPIRV-Tools)
 	search_lib_recursive(DEPENDENCY_SPIRV_TOOLS_OPT_LIBRARY third_party_libs/vulkan/spirv-tools/source/opt/${BINARY_PRAGMA_DIR} SPIRV-Tools-opt)
 	search_lib_recursive(DEPENDENCY_GLSLANG_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/${BINARY_PRAGMA_DIR} glslang)
@@ -61,15 +61,22 @@ if(WIN32)
 
 	search_lib_recursive_full(DEPENDENCY_VULKAN_LIBRARY "${VULKAN_SDK}/Lib/vulkan-1")
 else()
-	search_lib_recursive_full(DEPENDENCY_VULKAN_LIBRARY /usr/lib/x86_64-linux-gnu/libvulkan)
+
+    if(NOT "${VULKAN_SDK}" STREQUAL "")
+        set(DEPENDENCY_VULKAN_INCLUDE_PATH "${VULKAN_SDK}/include" CACHE PATH "Path to include directory.") #linux or macs are case-sensitive.
+    else()
+        set(DEPENDENCY_VULKAN_INCLUDE_PATH "/usr/include" CACHE PATH "Path to include directory.")
+    endif()
+        #we do not know where the libraries live. They may be in /usr/lib, or /usr/lib/{gcc-arch-id},or /usr/local/lib (Or God knows where really) or at VULKAN_SDK. Hint the last one to the library searcher.
+        find_library(DEPENDENCY_VULKAN_LIBRARY libvulkan HINTS "${VULKAN_SDK}/lib")
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_LIBRARY )
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_OGL_COMPILER_LIBRARY )
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_OS_DEPENDENT_LIBRARY )
 	# search_lib_recursive_full(DEPENDENCY_HLSL_LIBRARY )
-	# search_lib_recursive_full(DEPENDENCY_SPIRV_LIBRARY /usr/lib/x86_64-linux-gnu/libSPIRV)
-	search_lib_recursive_full(DEPENDENCY_SPIRV_TOOLS_LIBRARY /usr/lib/x86_64-linux-gnu/libSPIRV-Tools STATIC)
-	search_lib_recursive_full(DEPENDENCY_SPIRV_TOOLS_OPT_LIBRARY /usr/lib/x86_64-linux-gnu/libSPIRV-Tools-opt STATIC)
-	# search_lib_recursive_full(DEPENDENCY_SPV_REMAPPER_LIBRARY /usr/lib/x86_64-linux-gnu/) == TODO
+        find_library(DEPENDENCY_SPIRV_LIBRARY libSPIRV HINTS "${VULKAN_SDK}/lib")
+        find_library(DEPENDENCY_SPIRV_TOOLS_LIBRARY libSPIRV-Tools STATIC HINTS "${VULKAN_SDK}/lib")
+        find_library(DEPENDENCY_SPIRV_TOOLS_OPT_LIBRARY libSPIRV-Tools-opt STATIC HINTS "${VULKAN_SDK}/lib")
+        find_library(DEPENDENCY_SPV_REMAPPER_LIBRARY libSPVRemapper STATIC HINTS "${VULKAN_SDK}/lib")
 endif()
 
 set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory.")
@@ -79,6 +86,7 @@ search_lib_recursive(DEPENDENCY_ANVIL_LIBRARY external_libs/prosper_vulkan/third
 
 if(UNIX)
 	resolve_links(DEPENDENCY_VULKAN_LIBRARY)
+	resolve_links(DEPENDENCY_SPIRV_LIBRARY)
 endif()
 
 # Vulkan
@@ -86,7 +94,24 @@ set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL ON FORCE)
 set(SPIRV_SKIP_TESTS ON CACHE BOOL ".." FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL OFF FORCE)
 
-add_subdirectory("${VULKAN_SDK}/spirv-tools" third_party_libs/vulkan/spirv-tools)
+
+if("${VULKAN_SDK}" STREQUAL "")
+
+    #don't even bother trying to find tools
+
+    if("${DEPENDENCY_SPIRV_TOOLS_DIR}" STREQUAL "")
+        message(ERROR "DEPENDENCY_SPIRV_TOOLS_DIR is not set! pr_prosper_vulkan will NOT be built!")
+        return()
+    else()
+
+        add_subdirectory("${DEPENDENCY_SPIRV_TOOLS_DIR}" third_party_libs/vulkan/spirv-tools)
+
+    endif()
+else()
+
+    set(DEPENDENCY_SPIRV_TOOLS_DIR "${VULKAN_SDK}/spirv-tools" CACHE PATH "Path to spirv-tools repo")
+    add_subdirectory(${DEPENDENCY_SPIRV_TOOLS_DIR} third_party_libs/vulkan/spirv-tools)
+endif()
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL ".." FORCE)
 #set_target_properties(core_tables PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv)

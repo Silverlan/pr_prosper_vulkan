@@ -8,6 +8,13 @@ project(${PROJ_NAME} CXX)
 
 # set(PRECOMPILED_HEADER "stdafx")
 
+
+
+
+set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory." FORCE)
+set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH  "Path to include directory." FORCE)
+set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory." FORCE)
+
 link_external_library(iclient)
 link_external_library(glfw)
 link_external_library(iglfw)
@@ -26,6 +33,7 @@ endif()
 
 add_include_dir(glm)
 add_include_dir(alsoundsystem)
+add_include_dir(anvil)
 add_include_dir(materialsystem)
 add_include_dir(cmaterialsystem)
 
@@ -79,9 +87,7 @@ else()
         find_library(DEPENDENCY_SPV_REMAPPER_LIBRARY libSPVRemapper STATIC HINTS "${VULKAN_SDK}/lib")
 endif()
 
-set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory.")
-set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory.")
-set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory.")
+
 search_lib_recursive(DEPENDENCY_ANVIL_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/${BINARY_PRAGMA_DIR} Anvil STATIC)
 
 if(UNIX)

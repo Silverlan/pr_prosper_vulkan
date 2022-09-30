@@ -15,6 +15,9 @@ set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vul
 set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH  "Path to include directory." FORCE)
 set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory." FORCE)
 
+
+set(DEPENDENCY_PROSPER_VULKAN_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/include CACHE PATH "Path to include directory." FORCE)
+
 link_external_library(iclient)
 link_external_library(glfw)
 link_external_library(iglfw)
@@ -46,7 +49,6 @@ register_pragma_module(${PROJ_NAME})
 #
 
 add_subdirectory(external_libs/prosper_vulkan)
-set(DEPENDENCY_PROSPER_VULKAN_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/include CACHE PATH "Path to include directory.")
 search_lib_recursive_ext(DEPENDENCY_PROSPER_VULKAN_LIBRARY prosper_vulkan)
 
 set(DEPENDENCY_GLSLANG_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang CACHE STRING "" FORCE)
@@ -169,7 +171,8 @@ set_target_properties(SPIRV PROPERTIES FOLDER modules/graphics/vulkan/anvil/glsl
 set_target_properties(SPVRemapper PROPERTIES FOLDER modules/graphics/vulkan/anvil/glslang)
 #
 
-add_dependencies(${PROJ_NAME} prosper_vulkan prosper)
+
+add_dependencies(${PROJ_NAME} prosper_vulkan iclient)
 
 set_target_properties(pr_prosper_vulkan PROPERTIES FOLDER modules/graphics/vulkan)
 set_target_properties(prosper_vulkan PROPERTIES FOLDER modules/graphics/vulkan)

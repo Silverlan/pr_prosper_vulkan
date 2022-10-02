@@ -88,18 +88,18 @@ else()
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_OS_DEPENDENT_LIBRARY )
 	# search_lib_recursive_full(DEPENDENCY_HLSL_LIBRARY )
 
-        find_library(TMP_VAR NAMES SPIRV HINTS "${VULKAN_SDK}/lib" NO_CACHE)
-        set(DEPENDENCY_SPIRV_LIBRARY "${TMP_VAR}" CACHE PATH "" FORCE)
-        unset(TMP_VAR)
-        find_library(TMP_VAR NAMES SPIRV-Tools STATIC HINTS "${VULKAN_SDK}/lib" NO_CACHE)
-        set(DEPENDENCY_SPIRV_TOOLS_LIBRARY "${TMP_VAR}" CACHE PATH "" FORCE)
-        unset(TMP_VAR)
-        find_library(TMP_VAR NAMES SPIRV-Tools-opt STATIC HINTS "${VULKAN_SDK}/lib" NO_CACHE)
-        set(DEPENDENCY_SPIRV_TOOLS_OPT_LIBRARY "${TMP_VAR}" CACHE PATH "" FORCE)
-        unset(TMP_VAR)
-        find_library(TMP_VAR NAMES SPVRemapper STATIC HINTS "${VULKAN_SDK}/lib" NO_CACHE)
-        set(DEPENDENCY_SPV_REMAPPER_LIBRARY "${TMP_VAR}" CACHE PATH "" FORCE)
-        unset(TMP_VAR)
+
+
+
+        search_lib_recursive(DEPENDENCY_SPIRV_TOOLS_LIBRARY third_party_libs/vulkan/spirv-tools/source/${BINARY_PRAGMA_DIR} SPIRV-Tools STATIC)
+        search_lib_recursive(DEPENDENCY_SPIRV_TOOLS_OPT_LIBRARY third_party_libs/vulkan/spirv-tools/source/opt/${BINARY_PRAGMA_DIR} SPIRV-Tools-opt STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/${BINARY_PRAGMA_DIR} glslang STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_OGL_COMPILER_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/OGLCompilersDLL/${BINARY_PRAGMA_DIR} OGLCompiler STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_MACHINE_INDEPENDENT_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/${BINARY_PRAGMA_DIR} MachineIndependent STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_GENERIC_CODE_GEN_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/${BINARY_PRAGMA_DIR} GenericCodeGen STATIC)
+        search_lib_recursive(DEPENDENCY_SPIRV_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/SPIRV/${BINARY_PRAGMA_DIR} SPIRV STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_OS_DEPENDENT_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/OSDependent/Unix/${BINARY_PRAGMA_DIR} OSDependent STATIC)
+        search_lib_recursive(DEPENDENCY_SPV_REMAPPER_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/SPIRV/${BINARY_PRAGMA_DIR} SPVRemapper STATIC)
 endif()
 
 

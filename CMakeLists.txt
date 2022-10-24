@@ -8,6 +8,16 @@ project(${PROJ_NAME} CXX)
 
 # set(PRECOMPILED_HEADER "stdafx")
 
+
+
+
+set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory." FORCE)
+set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH  "Path to include directory." FORCE)
+set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory." FORCE)
+
+
+set(DEPENDENCY_PROSPER_VULKAN_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/include CACHE PATH "Path to include directory." FORCE)
+
 link_external_library(iclient)
 link_external_library(glfw)
 link_external_library(iglfw)
@@ -21,11 +31,12 @@ add_include_dir(anvil_build)
 add_include_dir(anvil_deps)
 add_external_library(luajit)
 if(WIN32)
-	add_external_library(lua)
+        add_external_library(lua)
 endif()
 
 add_include_dir(glm)
 add_include_dir(alsoundsystem)
+add_include_dir(anvil)
 add_include_dir(materialsystem)
 add_include_dir(cmaterialsystem)
 
@@ -38,7 +49,6 @@ register_pragma_module(${PROJ_NAME})
 #
 
 add_subdirectory(external_libs/prosper_vulkan)
-set(DEPENDENCY_PROSPER_VULKAN_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/include CACHE PATH "Path to include directory.")
 search_lib_recursive_ext(DEPENDENCY_PROSPER_VULKAN_LIBRARY prosper_vulkan)
 
 set(DEPENDENCY_GLSLANG_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang CACHE STRING "" FORCE)
@@ -47,7 +57,7 @@ search_lib_recursive(DEPENDENCY_GLSLANG_LIBRARY external_libs/prosper_vulkan/thi
 set(VULKAN_SDK "$ENV{VULKAN_SDK}" CACHE INTERNAL "Path to Vulkan SDK.")
 
 if(WIN32)
-	set(DEPENDENCY_VULKAN_INCLUDE "${VULKAN_SDK}/Include" CACHE PATH "Path to include directory.")
+        set(DEPENDENCY_VULKAN_INCLUDE "${VULKAN_SDK}/Include" CACHE PATH "Path to include directory." FORCE)
 	search_lib_recursive(DEPENDENCY_SPIRV_TOOLS_LIBRARY third_party_libs/vulkan/spirv-tools/source/${BINARY_PRAGMA_DIR} SPIRV-Tools)
 	search_lib_recursive(DEPENDENCY_SPIRV_TOOLS_OPT_LIBRARY third_party_libs/vulkan/spirv-tools/source/opt/${BINARY_PRAGMA_DIR} SPIRV-Tools-opt)
 	search_lib_recursive(DEPENDENCY_GLSLANG_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/${BINARY_PRAGMA_DIR} glslang)
@@ -63,25 +73,36 @@ if(WIN32)
 else()
 
     if(NOT "${VULKAN_SDK}" STREQUAL "")
-        set(DEPENDENCY_VULKAN_INCLUDE_PATH "${VULKAN_SDK}/include" CACHE PATH "Path to include directory.") #linux or macs are case-sensitive.
+        set(DEPENDENCY_VULKAN_INCLUDE "${VULKAN_SDK}/include" CACHE PATH "Path to include directory." FORCE) #linux or macs are case-sensitive.
     else()
-        set(DEPENDENCY_VULKAN_INCLUDE_PATH "/usr/include" CACHE PATH "Path to include directory.")
+        set(DEPENDENCY_VULKAN_INCLUDE "/usr/include" CACHE PATH "Path to include directory." FORCE)
     endif()
         #we do not know where the libraries live. They may be in /usr/lib, or /usr/lib/{gcc-arch-id},or /usr/local/lib (Or God knows where really) or at VULKAN_SDK. Hint the last one to the library searcher.
-        find_library(DEPENDENCY_VULKAN_LIBRARY libvulkan HINTS "${VULKAN_SDK}/lib")
+        #set(ENV{PKG_CONFIG_PATH} "${VULKAN_SDK}/lib/pkgconfig")
+        #set(TMP_VAR "")
+        find_library(TMP_VAR NAMES vulkan HINTS "${VULKAN_SDK}/lib" NO_CACHE)
+        set(DEPENDENCY_VULKAN_LIBRARY "${TMP_VAR}" CACHE PATH "" FORCE)
+        unset(TMP_VAR)
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_LIBRARY )
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_OGL_COMPILER_LIBRARY )
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_OS_DEPENDENT_LIBRARY )
 	# search_lib_recursive_full(DEPENDENCY_HLSL_LIBRARY )
-        find_library(DEPENDENCY_SPIRV_LIBRARY libSPIRV HINTS "${VULKAN_SDK}/lib")
-        find_library(DEPENDENCY_SPIRV_TOOLS_LIBRARY libSPIRV-Tools STATIC HINTS "${VULKAN_SDK}/lib")
-        find_library(DEPENDENCY_SPIRV_TOOLS_OPT_LIBRARY libSPIRV-Tools-opt STATIC HINTS "${VULKAN_SDK}/lib")
-        find_library(DEPENDENCY_SPV_REMAPPER_LIBRARY libSPVRemapper STATIC HINTS "${VULKAN_SDK}/lib")
+
+
+
+
+        search_lib_recursive(DEPENDENCY_SPIRV_TOOLS_LIBRARY third_party_libs/vulkan/spirv-tools/source/${BINARY_PRAGMA_DIR} SPIRV-Tools STATIC)
+        search_lib_recursive(DEPENDENCY_SPIRV_TOOLS_OPT_LIBRARY third_party_libs/vulkan/spirv-tools/source/opt/${BINARY_PRAGMA_DIR} SPIRV-Tools-opt STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/${BINARY_PRAGMA_DIR} glslang STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_OGL_COMPILER_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/OGLCompilersDLL/${BINARY_PRAGMA_DIR} OGLCompiler STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_MACHINE_INDEPENDENT_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/${BINARY_PRAGMA_DIR} MachineIndependent STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_GENERIC_CODE_GEN_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/${BINARY_PRAGMA_DIR} GenericCodeGen STATIC)
+        search_lib_recursive(DEPENDENCY_SPIRV_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/SPIRV/${BINARY_PRAGMA_DIR} SPIRV STATIC)
+        search_lib_recursive(DEPENDENCY_GLSLANG_OS_DEPENDENT_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang/OSDependent/Unix/${BINARY_PRAGMA_DIR} OSDependent STATIC)
+        search_lib_recursive(DEPENDENCY_SPV_REMAPPER_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/SPIRV/${BINARY_PRAGMA_DIR} SPVRemapper STATIC)
 endif()
 
-set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory.")
-set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory.")
-set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory.")
+
 search_lib_recursive(DEPENDENCY_ANVIL_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/${BINARY_PRAGMA_DIR} Anvil STATIC)
 
 if(UNIX)
@@ -109,7 +130,7 @@ if("${VULKAN_SDK}" STREQUAL "")
     endif()
 else()
 
-    set(DEPENDENCY_SPIRV_TOOLS_DIR "${VULKAN_SDK}/spirv-tools" CACHE PATH "Path to spirv-tools repo")
+    set(DEPENDENCY_SPIRV_TOOLS_DIR "${VULKAN_SDK}/SPIRV-tools" CACHE PATH "Path to spirv-tools repo" FORCE)
     add_subdirectory(${DEPENDENCY_SPIRV_TOOLS_DIR} third_party_libs/vulkan/spirv-tools)
 endif()
 
@@ -163,7 +184,8 @@ set_target_properties(SPIRV PROPERTIES FOLDER modules/graphics/vulkan/anvil/glsl
 set_target_properties(SPVRemapper PROPERTIES FOLDER modules/graphics/vulkan/anvil/glslang)
 #
 
-add_dependencies(${PROJ_NAME} prosper_vulkan prosper)
+
+add_dependencies(${PROJ_NAME} prosper_vulkan iclient)
 
 set_target_properties(pr_prosper_vulkan PROPERTIES FOLDER modules/graphics/vulkan)
 set_target_properties(prosper_vulkan PROPERTIES FOLDER modules/graphics/vulkan)

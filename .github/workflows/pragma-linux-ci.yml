@@ -63,8 +63,8 @@ jobs:
           echo ${{ steps.pragma-cmake-defs.outputs.cmake_defs }}
           echo "--"
           
-      - uses: mxschmitt/action-tmate@v3
-        name: CI
+      #- uses: mxschmitt/action-tmate@v3
+      #  name: CI
 
       - name: Build
         shell: bash

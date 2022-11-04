@@ -1,0 +1,345 @@
+cmake_minimum_required(VERSION 3.12)
+
+set(INCLUDE_DIRS)
+function(add_include_dir IDENTIFIER)
+	set(PRETTYNAME ${IDENTIFIER})
+	set(ARGV ${ARGN})
+	list(LENGTH ARGV ARGC)
+	if(${ARGC} GREATER 0)
+		list(GET ARGV 0 PRETTYNAME)
+	endif()
+	string(TOUPPER ${IDENTIFIER} UIDENTIFIER)
+
+	set(${DEFAULT_DIR} "")
+	set(DEPENDENCY_${UIDENTIFIER}_INCLUDE ${DEFAULT_DIR} CACHE PATH "Path to ${PRETTYNAME} include directory.")
+	set(INCLUDE_DIRS ${INCLUDE_DIRS} DEPENDENCY_${UIDENTIFIER}_INCLUDE PARENT_SCOPE)
+endfunction(add_include_dir)
+
+set(LIBRARIES)
+function(add_external_library IDENTIFIER)
+	set(PRETTYNAME ${IDENTIFIER})
+	set(ARGV ${ARGN})
+	list(LENGTH ARGV ARGC)
+	if(${ARGC} GREATER 0)
+		list(GET ARGV 0 PRETTYNAME)
+	endif()
+	string(TOUPPER ${IDENTIFIER} UIDENTIFIER)
+
+	# set(DEPENDENCY_${UIDENTIFIER}_LIBRARY "" CACHE FILEPATH "Path to ${PRETTYNAME} library.")
+	find_library(DEPENDENCY_${UIDENTIFIER}_LIBRARY ${IDENTIFIER}.lib)
+	set(LIBRARIES ${LIBRARIES} DEPENDENCY_${UIDENTIFIER}_LIBRARY PARENT_SCOPE)
+endfunction(add_external_library)
+
+function(link_external_library IDENTIFIER)
+	set(PRETTYNAME ${IDENTIFIER})
+	set(ARGV ${ARGN})
+	list(LENGTH ARGV ARGC)
+	if(${ARGC} GREATER 0)
+		list(GET ARGV 0 PRETTYNAME)
+	endif()
+	string(TOUPPER ${IDENTIFIER} UIDENTIFIER)
+
+	set(${DEFAULT_DIR} "")
+	set(DEPENDENCY_${UIDENTIFIER}_INCLUDE ${DEFAULT_DIR} CACHE PATH "Path to ${PRETTYNAME} include directory.")
+	set(INCLUDE_DIRS ${INCLUDE_DIRS} DEPENDENCY_${UIDENTIFIER}_INCLUDE PARENT_SCOPE)
+
+	set(DEPENDENCY_${UIDENTIFIER}_LIBRARY "" CACHE FILEPATH "Path to ${PRETTYNAME} library.")
+	set(LIBRARIES ${LIBRARIES} DEPENDENCY_${UIDENTIFIER}_LIBRARY PARENT_SCOPE)
+endfunction(link_external_library)
+
+function(def_vs_filters FILE_LIST)
+	foreach(source IN LISTS FILE_LIST)
+	    get_filename_component(source_path "${source}" PATH)
+	    string(REPLACE "${CMAKE_CURRENT_LIST_DIR}" "" source_path_relative "${source_path}")
+	    string(REPLACE "/" "\\" source_path_msvc "${source_path_relative}")
+	    source_group("${source_path_msvc}" FILES "${source}")
+	endforeach()
+endfunction(def_vs_filters)
+
+function(search_lib_recursive_full VAR_NAME FILE_PATH)
+	if(WIN32)
+		set(FILE_PATH_WITH_EXT "${FILE_PATH}.lib")
+	else()
+		set(FILE_EXTENSION ".so")
+		set(extra_macro_args ${ARGN})
+
+		list(LENGTH extra_macro_args num_extra_args)
+		if(${num_extra_args} GREATER 0)
+			list(GET extra_macro_args 0 optional_arg)
+			if(${optional_arg} STREQUAL "STATIC")
+				set(FILE_EXTENSION ".a")
+			endif()
+		endif()
+
+		set(FILE_PATH_WITH_EXT "${FILE_PATH}${FILE_EXTENSION}")
+	endif()
+	if(EXISTS ${FILE_PATH_WITH_EXT})
+		get_filename_component(FILE_PATH_WITH_EXT "${FILE_PATH_WITH_EXT}" REALPATH)
+	endif()
+
+	if(UNIX)
+		# Find actual library file name
+		get_filename_component(FILE_PATH_DIRECTORY "${FILE_PATH_WITH_EXT}" DIRECTORY)
+		get_filename_component(FILE_PATH_NAME "${FILE_PATH_WITH_EXT}" NAME)
+		execute_process(
+			COMMAND find ./ -name "${FILE_PATH_NAME}*"
+			WORKING_DIRECTORY "${FILE_PATH_DIRECTORY}"
+			OUTPUT_VARIABLE FOUND_RESULT
+		)
+		if(NOT ${FOUND_RESULT} STREQUAL "")
+			get_filename_component(FOUND_RESULT "${FOUND_RESULT}" NAME)
+			string(STRIP ${FOUND_RESULT} FOUND_RESULT)
+                        #message("FIND: ${FILE_PATH_DIRECTORY}/${FILE_PATH_NAME}* -> ${FOUND_RESULT}")
+			set(FILE_PATH_WITH_EXT "${FILE_PATH_DIRECTORY}/${FOUND_RESULT}")
+		endif()
+		#
+	endif()
+
+	set(${VAR_NAME} ${FILE_PATH_WITH_EXT} CACHE PATH "Path to library." FORCE)
+endfunction(search_lib_recursive_full)
+
+function(search_lib_recursive_custom VAR_NAME FILE_NAME FULL_PATH)
+	set(ARG_STATIC_LIBRARY FALSE)
+	set(extra_macro_args ${ARGN})
+
+	list(LENGTH extra_macro_args num_extra_args)
+	if(${num_extra_args} GREATER 0)
+		list(GET extra_macro_args 0 optional_arg)
+		if(${optional_arg} STREQUAL "STATIC")
+			set(ARG_STATIC_LIBRARY "STATIC")
+		endif()
+	endif()
+
+	set(LIB_NAME ${FILE_NAME})
+	if(UNIX)
+		set(LIB_NAME lib${LIB_NAME})
+	endif()
+	search_lib_recursive_full(${VAR_NAME} ${FULL_PATH}/${LIB_NAME} ${ARG_STATIC_LIBRARY})
+endfunction(search_lib_recursive_custom)
+
+function(search_lib_recursive_ext VAR_NAME FILE_NAME)
+	set(ARG_STATIC_LIBRARY FALSE)
+	set(extra_macro_args ${ARGN})
+
+	list(LENGTH extra_macro_args num_extra_args)
+	if(${num_extra_args} GREATER 0)
+		list(GET extra_macro_args 0 optional_arg)
+		if(${optional_arg} STREQUAL "STATIC")
+			set(ARG_STATIC_LIBRARY "STATIC")
+		endif()
+	endif()
+
+	set(LIB_NAME ${FILE_NAME})
+	if(UNIX)
+		set(LIB_NAME lib${LIB_NAME})
+	endif()
+	search_lib_recursive_full(${VAR_NAME} ${CMAKE_CURRENT_BINARY_DIR}/external_libs/${FILE_NAME}/${BINARY_PRAGMA_DIR}/${LIB_NAME} ${ARG_STATIC_LIBRARY})
+endfunction(search_lib_recursive_ext)
+
+function(search_lib_recursive VAR_NAME FILE_PATH LIB_NAME)
+	set(ARG_STATIC_LIBRARY FALSE)
+	set(ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR})
+	set(extra_macro_args ${ARGN})
+
+	list(LENGTH extra_macro_args num_extra_args)
+	if(${num_extra_args} GREATER 0)
+		list(GET extra_macro_args 0 optional_arg)
+		if(${optional_arg} STREQUAL "STATIC")
+			set(ARG_STATIC_LIBRARY "STATIC")
+		endif()
+		if(${num_extra_args} GREATER 1)
+			list(GET extra_macro_args 1 optional_arg)
+			set(ROOT_DIR ${optional_arg})
+		endif()
+	endif()
+
+	if(UNIX)
+		set(LIB_NAME lib${LIB_NAME})
+	endif()
+	search_lib_recursive_full(${VAR_NAME} ${ROOT_DIR}/${FILE_PATH}/${LIB_NAME} ${ARG_STATIC_LIBRARY})
+endfunction(search_lib_recursive)
+
+set(DEFINITIONS
+)
+
+function(add_def DEF)
+	set(DEFINITIONS ${DEFINITIONS} ${DEF} PARENT_SCOPE)
+endfunction(add_def)
+
+set(INCLUDE_DIRS)
+function(add_include_dir IDENTIFIER)
+	set(PRETTYNAME ${IDENTIFIER})
+	set(ARGV ${ARGN})
+	list(LENGTH ARGV ARGC)
+	if(${ARGC} GREATER 0)
+		list(GET ARGV 0 PRETTYNAME)
+	endif()
+	string(TOUPPER ${IDENTIFIER} UIDENTIFIER)
+
+	set(${DEFAULT_DIR} "")
+	set(DEPENDENCY_${UIDENTIFIER}_INCLUDE ${DEFAULT_DIR} CACHE PATH "Path to ${PRETTYNAME} include directory.")
+	set(INCLUDE_DIRS ${INCLUDE_DIRS} DEPENDENCY_${UIDENTIFIER}_INCLUDE PARENT_SCOPE)
+endfunction(add_include_dir)
+
+set(LIBRARIES)
+function(add_external_library IDENTIFIER)
+	set(PRETTYNAME ${IDENTIFIER})
+	set(ARGV ${ARGN})
+	list(LENGTH ARGV ARGC)
+	if(${ARGC} GREATER 0)
+		list(GET ARGV 0 PRETTYNAME)
+	endif()
+	string(TOUPPER ${IDENTIFIER} UIDENTIFIER)
+
+	set(DEPENDENCY_${UIDENTIFIER}_LIBRARY "" CACHE FILEPATH "Path to ${PRETTYNAME} library.")
+	set(LIBRARIES ${LIBRARIES} DEPENDENCY_${UIDENTIFIER}_LIBRARY PARENT_SCOPE)
+endfunction(add_external_library)
+
+function(link_external_library IDENTIFIER)
+	set(PRETTYNAME ${IDENTIFIER})
+	set(ARGV ${ARGN})
+	list(LENGTH ARGV ARGC)
+	if(${ARGC} GREATER 0)
+		list(GET ARGV 0 PRETTYNAME)
+	endif()
+	string(TOUPPER ${IDENTIFIER} UIDENTIFIER)
+
+	set(${DEFAULT_DIR} "")
+	set(DEPENDENCY_${UIDENTIFIER}_INCLUDE ${DEFAULT_DIR} CACHE PATH "Path to ${PRETTYNAME} include directory.")
+	set(INCLUDE_DIRS ${INCLUDE_DIRS} DEPENDENCY_${UIDENTIFIER}_INCLUDE PARENT_SCOPE)
+
+	set(DEPENDENCY_${UIDENTIFIER}_LIBRARY "" CACHE FILEPATH "Path to ${PRETTYNAME} library.")
+	set(LIBRARIES ${LIBRARIES} DEPENDENCY_${UIDENTIFIER}_LIBRARY PARENT_SCOPE)
+endfunction(link_external_library)
+
+macro(link_generic_module_libraries)
+	link_external_library(sharedutils)
+	link_external_library(mathutil)
+	link_external_library(vfilesystem)
+	link_external_library(shared)
+	link_external_library(luasystem)
+	link_external_library(LuaJIT)
+	link_external_library(luabind)
+	link_external_library(materialsystem)
+	link_external_library(datasystem)
+	link_external_library(ishared)
+	link_external_library(util_udm)
+
+	add_include_dir(boost)
+endmacro(link_generic_module_libraries)
+
+set(CMAKE_CXX_STANDARD 20)
+set(ENABLE_STATIC_LIBRARY_FLAG 0)
+
+set(DEFINITIONS
+	USE_LUAJIT
+	GLM_FORCE_DEPTH_ZERO_TO_ONE
+	LUABIND_DYNAMIC_LINK
+	ENABLE_MESH_FUNCTIONS
+)
+# BOOST_ALL_DYN_LINK
+
+if(WIN32)
+	add_compile_options(/wd4251)
+	add_compile_options(/W1)
+endif()
+
+SET(SOURCE_PATHS)
+function(add_source_path PATH)
+	set(SOURCE_PATHS ${SOURCE_PATHS} ${PATH} PARENT_SCOPE)
+endfunction()
+
+function(register_pragma_module IDENTIFIER)
+	set(LIB_TYPE SHARED)
+	if(ENABLE_STATIC_LIBRARY_FLAG)
+		option(CONFIG_STATIC_LIBRARY "Build as static library?" OFF)
+	endif()
+	if((DEFINED CONFIG_STATIC_LIBRARY) AND (${CONFIG_STATIC_LIBRARY}))
+		set(LIB_TYPE STATIC)
+	endif()
+
+	foreach(def IN LISTS DEFINITIONS)
+		add_definitions(-D${def})
+	endforeach(def)
+
+	function(def_vs_filters FILE_LIST)
+		foreach(source IN LISTS FILE_LIST)
+		    get_filename_component(source_path "${source}" PATH)
+		    string(REPLACE "${CMAKE_CURRENT_LIST_DIR}" "" source_path_relative "${source_path}")
+		    string(REPLACE "/" "\\" source_path_msvc "${source_path_relative}")
+		    source_group("${source_path_msvc}" FILES "${source}")
+		endforeach()
+	endfunction(def_vs_filters)
+
+	file(GLOB_RECURSE SRC_FILES
+	    "${CMAKE_CURRENT_LIST_DIR}/src/*.h"
+	    "${CMAKE_CURRENT_LIST_DIR}/src/*.hpp"
+	    "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp"
+	    "${CMAKE_CURRENT_LIST_DIR}/src/*.c"
+	    "${CMAKE_CURRENT_LIST_DIR}/include/*.h"
+	    "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp"
+	)
+	set(SRC_FILES_CUSTOM)
+	set(SRC_FILES_CUSTOM_PATHS)
+	foreach(SRC_PATH IN LISTS SOURCE_PATHS)
+		set(TMP_SRC_FILES)
+		file(GLOB_RECURSE TMP_SRC_FILES
+		    "${SRC_PATH}/src/*.h"
+		    "${SRC_PATH}/src/*.hpp"
+		    "${SRC_PATH}/src/*.cpp"
+		    "${SRC_PATH}/src/*.c"
+		    "${SRC_PATH}/include/*.h"
+		    "${SRC_PATH}/include/*.hpp"
+		)
+		foreach(filePath IN LISTS TMP_SRC_FILES)
+			list(APPEND SRC_FILES_CUSTOM ${filePath})
+			list(APPEND SRC_FILES_CUSTOM_PATHS ${SRC_PATH})
+		endforeach()
+	endforeach()
+
+	set(LIB_SRC_FILES)
+	list(APPEND LIB_SRC_FILES ${SRC_FILES})
+	list(APPEND LIB_SRC_FILES ${SRC_FILES_CUSTOM})
+	add_library(${PROJ_NAME} ${LIB_TYPE} ${LIB_SRC_FILES})
+
+	if(WIN32)
+		target_compile_options(${PROJ_NAME} PRIVATE /wd4251)
+	endif()
+
+	list(LENGTH SRC_FILES_CUSTOM count)
+	math(EXPR count "${count}-1")
+	if(${count} GREATER 0)
+		foreach(i RANGE ${count})
+		  list(GET SRC_FILES_CUSTOM ${i} source)
+		  get_filename_component(source_path ${source} DIRECTORY)
+		  list(GET SRC_FILES_CUSTOM_PATHS ${i} source_origin)
+
+		  string(REPLACE "${source_origin}/" "" group_name "${source_path}")
+		  string(REPLACE "/" "\\" group_name_msvc "${group_name}")
+
+		  source_group(${group_name_msvc} FILES "${source}")
+		  target_include_directories(${PROJ_NAME} PRIVATE ${source_origin}/include)
+		  target_include_directories(${PROJ_NAME} PRIVATE ${source_origin}/src)
+		endforeach()
+	endif()
+
+	def_vs_filters("${SRC_FILES}")
+
+	foreach(LIB IN LISTS LIBRARIES)
+		target_link_libraries(${PROJ_NAME} ${${LIB}})
+	endforeach(LIB)
+
+	target_include_directories(${PROJ_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)
+	target_include_directories(${PROJ_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
+
+	foreach(INCLUDE_PATH IN LISTS INCLUDE_DIRS)
+		target_include_directories(${PROJ_NAME} PRIVATE ${${INCLUDE_PATH}})
+	endforeach(INCLUDE_PATH)
+
+	set(TARGET_PROPERTIES LINKER_LANGUAGE CXX)
+	if(DEFINED PRECOMPILED_HEADER)
+		set(TARGET_PROPERTIES ${TARGET_PROPERTIES} COMPILE_FLAGS /Yu"${PRECOMPILED_HEADER}.h")
+		set_source_files_properties("${CMAKE_CURRENT_LIST_DIR}/src/${PRECOMPILED_HEADER}.cpp" PROPERTIES COMPILE_FLAGS "/Yc${PRECOMPILED_HEADER}.h")
+	endif()
+	set_target_properties(${PROJ_NAME} PROPERTIES ${TARGET_PROPERTIES})
+endfunction(register_pragma_module)

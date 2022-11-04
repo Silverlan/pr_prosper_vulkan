@@ -1,6 +1,6 @@
-set(VERSION 3.12)
+cmake_minimum_required(VERSION 3.12)
 
-include("../CMakeShared.txt")
+include("./CMakeShared.txt")
 
 set(PROJ_NAME pr_prosper_vulkan)
 
@@ -11,12 +11,12 @@ project(${PROJ_NAME} CXX)
 
 
 
-set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory." FORCE)
-set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH  "Path to include directory." FORCE)
-set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory." FORCE)
+#set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory." FORCE)
+#set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH  "Path to include directory." FORCE)
+#set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory." FORCE)
 
 
-set(DEPENDENCY_PROSPER_VULKAN_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/include CACHE PATH "Path to include directory." FORCE)
+#set(DEPENDENCY_PROSPER_VULKAN_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/include CACHE PATH "Path to include directory." FORCE)
 
 link_external_library(iclient)
 link_external_library(glfw)
@@ -48,7 +48,7 @@ register_pragma_module(${PROJ_NAME})
 
 #
 
-add_subdirectory(external_libs/prosper_vulkan)
+# add_subdirectory(external_libs/prosper_vulkan)
 search_lib_recursive_ext(DEPENDENCY_PROSPER_VULKAN_LIBRARY prosper_vulkan)
 
 set(DEPENDENCY_GLSLANG_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang CACHE STRING "" FORCE)
@@ -80,9 +80,9 @@ else()
         #we do not know where the libraries live. They may be in /usr/lib, or /usr/lib/{gcc-arch-id},or /usr/local/lib (Or God knows where really) or at VULKAN_SDK. Hint the last one to the library searcher.
         #set(ENV{PKG_CONFIG_PATH} "${VULKAN_SDK}/lib/pkgconfig")
         #set(TMP_VAR "")
-        find_library(TMP_VAR NAMES vulkan HINTS "${VULKAN_SDK}/lib" NO_CACHE)
-        set(DEPENDENCY_VULKAN_LIBRARY "${TMP_VAR}" CACHE PATH "" FORCE)
-        unset(TMP_VAR)
+        #find_library(TMP_VAR NAMES vulkan HINTS "${VULKAN_SDK}/lib" NO_CACHE)
+        #set(DEPENDENCY_VULKAN_LIBRARY "${TMP_VAR}" CACHE PATH "" FORCE)
+        #unset(TMP_VAR)
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_LIBRARY )
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_OGL_COMPILER_LIBRARY )
 	# search_lib_recursive_full(DEPENDENCY_GLSLANG_OS_DEPENDENT_LIBRARY )
@@ -106,8 +106,8 @@ endif()
 search_lib_recursive(DEPENDENCY_ANVIL_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/${BINARY_PRAGMA_DIR} Anvil STATIC)
 
 if(UNIX)
-	resolve_links(DEPENDENCY_VULKAN_LIBRARY)
-	resolve_links(DEPENDENCY_SPIRV_LIBRARY)
+	# resolve_links(DEPENDENCY_VULKAN_LIBRARY)
+	# resolve_links(DEPENDENCY_SPIRV_LIBRARY)
 endif()
 
 # Vulkan
@@ -125,69 +125,13 @@ if("${VULKAN_SDK}" STREQUAL "")
         return()
     else()
 
-        add_subdirectory("${DEPENDENCY_SPIRV_TOOLS_DIR}" third_party_libs/vulkan/spirv-tools)
+        # add_subdirectory("${DEPENDENCY_SPIRV_TOOLS_DIR}" third_party_libs/vulkan/spirv-tools)
 
     endif()
 else()
 
     set(DEPENDENCY_SPIRV_TOOLS_DIR "${VULKAN_SDK}/SPIRV-tools" CACHE PATH "Path to spirv-tools repo" FORCE)
-    add_subdirectory(${DEPENDENCY_SPIRV_TOOLS_DIR} third_party_libs/vulkan/spirv-tools)
+    # add_subdirectory(${DEPENDENCY_SPIRV_TOOLS_DIR} third_party_libs/vulkan/spirv-tools)
 endif()
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL ".." FORCE)
-#set_target_properties(core_tables PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv)
-set_target_properties(enum_string_mapping PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv)
-set_target_properties(extinst_tables PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv)
-set_target_properties(spirv-tools-pkg-config PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv)
-set_target_properties(spirv-tools-shared-pkg-config PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv)
-
-set_target_properties(spirv-tools-build-version PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/build)
-# set_target_properties(spirv-tools-debuginfo PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/build)
-set_target_properties(spirv-tools-header-DebugInfo PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/build)
-# set_target_properties(spirv-tools-spv-amd-gcn-shader PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/build)
-# set_target_properties(spirv-tools-spv-amd-shader-ballot PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/build)
-# set_target_properties(spirv-tools-spv-amd-shader-explicit-vertex-parameter PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/build)
-# set_target_properties(spirv-tools-spv-amd-shader-trinary-minmax PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/build)
-
-# set_target_properties(SPIRV-Tools PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/libraries)
-set_target_properties(SPIRV-Tools-link PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/libraries)
-set_target_properties(SPIRV-Tools-opt PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/libraries)
-set_target_properties(SPIRV-Tools-reduce PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/libraries)
-set_target_properties(SPIRV-Tools-shared PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/libraries)
-
-set_target_properties(spirv-tools-vimsyntax PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv/utilities)
-#
-
-set(VULKAN_INCLUDE_DIR ${DEPENDENCY_VULKAN_INCLUDE} CACHE STRING "" FORCE)
-set(VULKAN_LIBRARY ${DEPENDENCY_VULKAN_LIBRARY} CACHE STRING "" FORCE)
-
-#
-
-# anvil
-## set(ANVIL_INCLUDE_XCB_WINDOW_SYSTEM_SUPPORT OFF CACHE BOOL OFF FORCE)
-# set(ANVIL_LINK_STATICALLY_WITH_VULKAN_LIB ON CACHE BOOL ON FORCE)
-# set(ANVIL_USE_BUILT_IN_VULKAN_HEADERS OFF CACHE BOOL OFF FORCE)
-# set(ENABLE_HLSL ON CACHE BOOL ".." FORCE)
-# set(SKIP_GLSLANG_INSTALL ON CACHE BOOL ON FORCE)
-# set(VULKAN_LIBRARY ${DEPENDENCY_VULKAN_LIBRARY} CACHE PATH "" FORCE)
-# set(BUILD_SHARED_LIBS OFF CACHE BOOL OFF FORCE)
-# register_third_party_library(anvil)
-# set(BUILD_SHARED_LIBS ON CACHE BOOL ON FORCE)
-set_target_properties(Anvil PROPERTIES FOLDER modules/graphics/vulkan/anvil)
-set_target_properties(glslangValidator PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools)
-set_target_properties(spirv-remap PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools)
-set_target_properties(glslang PROPERTIES FOLDER modules/graphics/vulkan/anvil/glslang)
-set_target_properties(glslang-default-resource-limits PROPERTIES FOLDER modules/graphics/vulkan/anvil/glslang)
-set_target_properties(OGLCompiler PROPERTIES FOLDER modules/graphics/vulkan/anvil/glslang)
-set_target_properties(OSDependent PROPERTIES FOLDER modules/graphics/vulkan/anvil/glslang)
-set_target_properties(SPIRV PROPERTIES FOLDER modules/graphics/vulkan/anvil/glslang)
-set_target_properties(SPVRemapper PROPERTIES FOLDER modules/graphics/vulkan/anvil/glslang)
-#
-
-
-add_dependencies(${PROJ_NAME} prosper_vulkan iclient)
-
-set_target_properties(pr_prosper_vulkan PROPERTIES FOLDER modules/graphics/vulkan)
-set_target_properties(prosper_vulkan PROPERTIES FOLDER modules/graphics/vulkan)
-
-set_property(GLOBAL PROPERTY PRAGMA_MODULE_SKIP_TARGET_PROPERTY_FOLDER 1)

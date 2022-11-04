@@ -1,0 +1,97 @@
+name: Build Linux
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+concurrency:
+  group: environment-lin-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build - ${{ matrix.config.os }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: ubuntu-22.04
+            name: "Ubuntu GCC-11"
+            artifact: "ubuntu_gcc.7z"
+            build_type: "RelWithDebInfo"
+            cc: "clang-14"
+            cxx: "clang++-14"
+            archiver: "7z a"
+            generators: "Unix Makefiles"
+            build_dir: 'build'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+          
+      - name: Setup Pragma Module
+        id: pragma-cmake-defs
+        uses: Silverlan/common_actions/setup_pragma_module@main
+        with:
+          cc_version: ${{ matrix.cc }}
+          cxx_version: ${{ matrix.cxx }}
+
+      - name: Build
+        shell: bash
+        run: |
+          mkdir prosper_vulkan
+          cd prosper_vulkan
+          mkdir lib
+          cd lib
+          wget https://github.com/Silverlan/tmp_prosper_vulkan_ci/releases/download/latest/binaries_linux64.tar.gz
+          tar xvfz binaries_linux64.tar.gz
+          rm -f binaries_linux64.tar.gz
+          cd ..
+          mkdir src
+          cd src
+          wget https://github.com/Silverlan/tmp_prosper_vulkan_ci/archive/refs/tags/latest.tar.gz
+          tar xvfz latest.tar.gz
+          rm -f latest.tar.gz
+
+
+      - name: Print
+        shell: bash
+        run: |
+          echo "--"
+          echo ${{ steps.pragma-cmake-defs.outputs.cmake_defs }}
+          echo "--"
+          
+      - uses: mxschmitt/action-tmate@v3
+        name: CI
+
+      - name: Build
+        shell: bash
+        run: |
+          sudo apt install xorg-dev
+          sudo apt-get install libxcb-keysyms1-dev
+          cmake -G "Unix Makefiles" \
+          	-DDEPENDENCY_ANVIL_BUILD_INCLUDE=./pragma/external_libs/wgui/third_party_libs/anvil/include/ \
+          	-DDEPENDENCY_PROSPER_VULKAN_INCLUDE=./external_libs/prosper_vulkan/include/ \
+          	-DDEPENDENCY_PROSPER_LIBRARY="./prosper_vulkan/lib/libprosper.so" \
+          	-DDEPENDENCY_VULKAN_INCLUDE="$VULKAN_SDK/include/" \
+          	-DDEPENDENCY_PROSPER_VULKAN_LIBRARY="./prosper_vulkan/lib/libprosper_vulkan.so" \
+          	-DDEPENDENCY_ANVIL_LIBRARY="./prosper_vulkan/lib/libAnvil.a" \
+          	-DDEPENDENCY_ANVIL_INCLUDE="./pragma/modules/pr_prosper_vulkan/external_libs/prosper_vulkan/third_party_libs/anvil/include/" \
+            ${{ steps.pragma-cmake-defs.outputs.cmake_defs }}
+          cmake --build ./ --verbose --target pr_prosper_vulkan
+
+      - name: Create Release Files
+        shell: bash
+        run: |
+          mkdir release
+          mkdir release/modules
+          rsync --mkpath ./libpr_prosper_vulkan.so release/modules/graphics/vulkan/
+          rsync --mkpath ./prosper_vulkan/lib/libprosper_vulkan.so release/modules/graphics/vulkan/
+          
+      - name: Release Binaries
+        uses: Silverlan/common_actions/release_nightly_binaries@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit: ${{ github.ref_name }}

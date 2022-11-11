@@ -55,7 +55,6 @@ jobs:
           tar xvfz latest.tar.gz
           rm -f latest.tar.gz
 
-
       - name: Print
         shell: bash
         run: |

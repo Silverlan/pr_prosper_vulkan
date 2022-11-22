@@ -11,12 +11,12 @@ project(${PROJ_NAME} CXX)
 
 
 
-#set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory." FORCE)
-#set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH  "Path to include directory." FORCE)
-#set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory." FORCE)
+set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory." FORCE)
+set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH  "Path to include directory." FORCE)
+set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory." FORCE)
 
 
-#set(DEPENDENCY_PROSPER_VULKAN_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/include CACHE PATH "Path to include directory." FORCE)
+set(DEPENDENCY_PROSPER_VULKAN_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/include CACHE PATH "Path to include directory." FORCE)
 
 link_external_library(iclient)
 link_external_library(glfw)
@@ -48,8 +48,9 @@ register_pragma_module(${PROJ_NAME})
 
 #
 
-# add_subdirectory(external_libs/prosper_vulkan)
+add_subdirectory(external_libs/prosper_vulkan)
 search_lib_recursive_ext(DEPENDENCY_PROSPER_VULKAN_LIBRARY prosper_vulkan)
+add_dependencies(${PROJ_NAME} prosper_vulkan)
 
 set(DEPENDENCY_GLSLANG_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang CACHE STRING "" FORCE)
 search_lib_recursive(DEPENDENCY_GLSLANG_LIBRARY external_libs/prosper_vulkan/third_party_libs/anvil/deps/glslang/glslang glslang STATIC)
@@ -125,13 +126,13 @@ if("${VULKAN_SDK}" STREQUAL "")
         return()
     else()
 
-        # add_subdirectory("${DEPENDENCY_SPIRV_TOOLS_DIR}" third_party_libs/vulkan/spirv-tools)
+    add_subdirectory("${DEPENDENCY_SPIRV_TOOLS_DIR}" third_party_libs/vulkan/spirv-tools)
 
     endif()
 else()
 
     set(DEPENDENCY_SPIRV_TOOLS_DIR "${VULKAN_SDK}/spirv-tools" CACHE PATH "Path to spirv-tools repo" FORCE)
-    # add_subdirectory(${DEPENDENCY_SPIRV_TOOLS_DIR} third_party_libs/vulkan/spirv-tools)
+    add_subdirectory(${DEPENDENCY_SPIRV_TOOLS_DIR} third_party_libs/vulkan/spirv-tools)
 endif()
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL ".." FORCE)

@@ -117,23 +117,6 @@ set(SPIRV_SKIP_TESTS ON CACHE BOOL ".." FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL OFF FORCE)
 
 
-if("${VULKAN_SDK}" STREQUAL "")
-
-    #don't even bother trying to find tools
-
-    if("${DEPENDENCY_SPIRV_TOOLS_DIR}" STREQUAL "")
-        message(ERROR "DEPENDENCY_SPIRV_TOOLS_DIR is not set! pr_prosper_vulkan will NOT be built!")
-        return()
-    else()
-
-        # add_subdirectory("${DEPENDENCY_SPIRV_TOOLS_DIR}" third_party_libs/vulkan/spirv-tools)
-
-    endif()
-else()
-
-    set(DEPENDENCY_SPIRV_TOOLS_DIR "${VULKAN_SDK}/SPIRV-tools" CACHE PATH "Path to spirv-tools repo" FORCE)
-    add_subdirectory(${DEPENDENCY_SPIRV_TOOLS_DIR} third_party_libs/vulkan/spirv-tools)
-endif()
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL ".." FORCE)
 #set_target_properties(core_tables PROPERTIES FOLDER modules/graphics/vulkan/anvil/tools/spirv)

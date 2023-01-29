@@ -11,11 +11,10 @@
 #define DLLEXPORT __declspec(dllexport)
 #endif
 
-extern "C"
+extern "C" {
+DLLEXPORT bool initialize_render_api(const std::string &engineName, bool enableValidation, std::shared_ptr<prosper::IPrContext> &outContext, std::string &errMsg)
 {
-    DLLEXPORT bool initialize_render_api(const std::string &engineName,bool enableValidation,std::shared_ptr<prosper::IPrContext> &outContext,std::string &errMsg)
-	{
-		outContext = prosper::VlkContext::Create(engineName,enableValidation);
-		return true;
-	}
+	outContext = prosper::VlkContext::Create(engineName, enableValidation);
+	return true;
+}
 };

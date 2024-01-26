@@ -53,7 +53,15 @@ register_pragma_module(${PROJ_NAME})
 add_subdirectory(external_libs/prosper_vulkan)
 add_dependencies(${PROJ_NAME} prosper_vulkan)
 
+if(WIN32)
+	set_target_folder(${PROJ_NAME} modules/rendering/vulkan)
+	set_target_folder(prosper_vulkan modules/rendering/vulkan)
+	set_target_folder(Anvil modules/rendering/vulkan)
+endif()
+
 if(UNIX)
 	# resolve_links(DEPENDENCY_VULKAN_LIBRARY)
 	# resolve_links(DEPENDENCY_SPIRV_LIBRARY)
 endif()
+
+set_property(GLOBAL PROPERTY PRAGMA_MODULE_SKIP_TARGET_PROPERTY_FOLDER 1)

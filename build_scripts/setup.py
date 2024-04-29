@@ -10,7 +10,7 @@ os.chdir(deps_dir)
 # This script is based on https://github.com/humbletim/setup-vulkan-sdk
 
 ########## Vulkan SDK ##########
-query_version = "1.3.250.0"
+query_version = "1.3.250.1"
 sdk_components = "Vulkan-Headers, Vulkan-Loader, Glslang"
 
 if platform == "linux":

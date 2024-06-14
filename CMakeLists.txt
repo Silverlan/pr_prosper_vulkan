@@ -1,67 +1,20 @@
-cmake_minimum_required(VERSION 3.12)
-
-include("./CMakeShared.txt")
+include(${CMAKE_SOURCE_DIR}/cmake/pr_common.cmake)
 
 set(PROJ_NAME pr_prosper_vulkan)
+pr_add_library(${PROJ_NAME} SHARED)
 
-project(${PROJ_NAME} CXX)
+pr_add_dependency(${PROJ_NAME} client TARGET PUBLIC)
 
-# set(PRECOMPILED_HEADER "stdafx")
-
-
-
-
-set(DEPENDENCY_ANVIL_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH "Path to include directory." FORCE)
-set(DEPENDENCY_ANVIL_BUILD_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/include CACHE PATH  "Path to include directory." FORCE)
-set(DEPENDENCY_ANVIL_DEPS_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/third_party_libs/anvil/deps CACHE PATH "Path to include directory." FORCE)
-
-
-set(DEPENDENCY_PROSPER_VULKAN_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/external_libs/prosper_vulkan/include CACHE PATH "Path to include directory." FORCE)
-
-link_external_library(iclient)
-link_external_library(glfw)
-link_external_library(iglfw)
-link_external_library(vulkan)
-link_external_library(prosper)
-link_external_library(prosper_vulkan)
-link_external_library(client)
-link_external_library(wgui)
-link_external_library(anvil)
-add_include_dir(anvil_build)
-add_include_dir(anvil_deps)
-add_external_library(luajit)
-if(WIN32)
-        add_external_library(lua)
-endif()
-
-add_include_dir(glm)
-add_include_dir(alsoundsystem)
-add_include_dir(anvil)
-add_include_dir(materialsystem)
-add_include_dir(cmaterialsystem)
-
-add_def(ALSYS_LIBRARY_TYPE)
-add_def(ANVIL_VULKAN_CPP)
-
-search_lib_recursive_ext(DEPENDENCY_PROSPER_VULKAN_LIBRARY prosper_vulkan)
-
-link_generic_module_libraries()
-register_pragma_module(${PROJ_NAME})
-
-#
+pr_add_headers(${PROJ_NAME} "include/")
+pr_add_sources(${PROJ_NAME} "src/")
 
 add_subdirectory(external_libs/prosper_vulkan)
-add_dependencies(${PROJ_NAME} prosper_vulkan)
+
+pr_add_dependency(${PROJ_NAME} prosper_vulkan TARGET PUBLIC)
 
 if(WIN32)
-	set_target_folder(${PROJ_NAME} modules/rendering/vulkan)
 	set_target_folder(prosper_vulkan modules/rendering/vulkan)
 	set_target_folder(Anvil modules/rendering/vulkan)
 endif()
 
-if(UNIX)
-	# resolve_links(DEPENDENCY_VULKAN_LIBRARY)
-	# resolve_links(DEPENDENCY_SPIRV_LIBRARY)
-endif()
-
-set_property(GLOBAL PROPERTY PRAGMA_MODULE_SKIP_TARGET_PROPERTY_FOLDER 1)
+pr_finalize(${PROJ_NAME} FOLDER "modules/rendering/vulkan")

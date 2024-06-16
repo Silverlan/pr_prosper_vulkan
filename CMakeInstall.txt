@@ -1,4 +1,0 @@
-pragma_install_create_directory(modules/graphics)
-pragma_install_create_directory(modules/graphics/vulkan)
-pragma_install_file("${CMAKE_CURRENT_BINARY_DIR}/modules/pr_prosper_vulkan/${PR_MODULE_INSTALL_SUBDIR}/${OS_LIB_BIN_PRE}pr_prosper_vulkan${OS_LIB_BIN_EXT}" "modules/graphics/vulkan/" OPTIONAL)
-pragma_install_file("${CMAKE_CURRENT_BINARY_DIR}/modules/pr_prosper_vulkan/external_libs/prosper_vulkan/${PR_MODULE_INSTALL_SUBDIR}/${OS_LIB_BIN_PRE}prosper_vulkan${OS_LIB_BIN_EXT}" "modules/graphics/vulkan/" OPTIONAL)

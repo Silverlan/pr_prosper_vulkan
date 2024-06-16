@@ -12,9 +12,7 @@ add_subdirectory(external_libs/prosper_vulkan)
 
 pr_add_dependency(${PROJ_NAME} prosper_vulkan TARGET PUBLIC)
 
-if(WIN32)
-	set_target_folder(prosper_vulkan modules/rendering/vulkan)
-	set_target_folder(Anvil modules/rendering/vulkan)
-endif()
+pr_set_target_folder(prosper_vulkan modules/rendering/vulkan)
+pr_set_target_folder(Anvil modules/rendering/vulkan)
 
 pr_finalize(${PROJ_NAME} FOLDER "modules/rendering/vulkan")

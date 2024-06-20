@@ -1,0 +1,6 @@
+{
+    "name": "Vulkan",
+    "module_name": "pr_prosper_vulkan",
+    "install_directory": "modules/graphics/vulkan/",
+    "release_directory": "modules/graphics/vulkan/"
+}

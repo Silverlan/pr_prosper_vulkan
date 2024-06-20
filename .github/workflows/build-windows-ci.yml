@@ -1,0 +1,16 @@
+name: Build - Windows
+
+on:
+  push:
+
+jobs:
+  call-workflow:
+    uses: Silverlan/pragma/.github/workflows/build-module.yml@main
+    if: github.repository != 'Silverlan/pr_module_template'
+    with:
+      repository: '${{ github.repository }}'
+      os: windows
+    secrets:
+      repository_token: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write

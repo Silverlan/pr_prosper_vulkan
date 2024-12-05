@@ -58,3 +58,24 @@ print_msg("Installing Vulkan SDK...")
 subprocess.run(["cmake","--install",normalize_path(vulkan_build_dir),"--config","Release"],check=True)
 
 cmake_args.append("-DVULKAN_SDK=" +normalize_path(vulkan_sdk_dir))
+
+########## CrashDiagnosticLayer ##########
+cdl_root_dir = deps_dir +"/CrashDiagnosticLayer"
+if not Path(cdl_root_dir).is_dir():
+	print_msg("CrashDiagnosticLayer not found. Downloading...")
+	os.chdir(deps_dir)
+	git_clone("https://github.com/LunarG/CrashDiagnosticLayer.git")
+
+os.chdir(cdl_root_dir)
+reset_to_commit("a36cce2")
+
+# Build
+print_msg("Building CrashDiagnosticLayer...")
+mkdir("build",cd=True)
+cmake_configure("..",generator,["-DUPDATE_DEPS=ON", "-DCMAKE_BUILD_TYPE=" +build_config])
+cmake_build(build_config)
+
+layer_dir = install_dir +"/modules/graphics/vulkan/layers"
+mkpath(layer_dir)
+cp(cdl_root_dir +"/build/src/json/crash_diagnostic_layer.json", layer_dir +"/VK_LAYER_LUNARG_crash_diagnostic.json")
+cp(cdl_root_dir +"/build/src/" +build_config +"/VkLayer_crash_diagnostic.dll", layer_dir +"/")

@@ -10,8 +10,9 @@ os.chdir(deps_dir)
 # This script is based on https://github.com/humbletim/setup-vulkan-sdk
 
 ########## Vulkan SDK ##########
-query_version = "1.3.250.1"
-sdk_components = "Vulkan-Headers, Vulkan-Loader, Glslang"
+# Note: When updating to a newer version, make sure to update SPIRV-Tools in pragma/build_scripts/build.py accordingly.
+query_version = "1.3.296.0"
+sdk_components = "Vulkan-Headers, Vulkan-Loader"
 
 if platform == "linux":
 	sdk_platform = "linux"
@@ -46,6 +47,8 @@ args += ["-B",normalize_path(vulkan_build_dir)]
 args += ["-DVULKAN_SDK=" +normalize_path(vulkan_sdk_dir)]
 args += ["-DVULKAN_SDK_CONFIG=" +normalize_path(vulkan_config)]
 args += ["-DVULKAN_SDK_COMPONENTS=" +normalize_path(sdk_components)]
+args += ["-DALLOW_EXTERNAL_SPIRV_TOOLS=1"]
+args += ["-DSPIRV_TOOLS_DIR=" +deps_dir +"/SPIRV-Tools"]
 
 print_msg("Configuring Vulkan SDK...")
 subprocess.run(["cmake"] +args,check=True)

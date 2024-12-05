@@ -78,4 +78,7 @@ cmake_build(build_config)
 layer_dir = install_dir +"/modules/graphics/vulkan/layers"
 mkpath(layer_dir)
 cp(cdl_root_dir +"/build/src/json/crash_diagnostic_layer.json", layer_dir +"/VK_LAYER_LUNARG_crash_diagnostic.json")
-cp(cdl_root_dir +"/build/src/" +build_config +"/VkLayer_crash_diagnostic.dll", layer_dir +"/")
+if platform == "win32":
+	cp(cdl_root_dir +"/build/src/" +build_config +"/VkLayer_crash_diagnostic.dll", layer_dir +"/")
+else:
+	cp(cdl_root_dir +"/build/src/" +build_config +"/libVkLayer_crash_diagnostic.so", layer_dir +"/")

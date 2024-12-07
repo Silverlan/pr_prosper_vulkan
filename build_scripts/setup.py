@@ -11,6 +11,9 @@ os.chdir(deps_dir)
 
 ########## Vulkan SDK ##########
 # Note: When updating to a newer version, make sure to update SPIRV-Tools in pragma/build_scripts/build.py accordingly.
+# Also, the new vulkan headers should be copied over to external_libs/prosper_vulkan/third_party_libs/anvil/include/vulkan
+# as well as the vk_enum_string_helper.h header, which can be found here:
+# https://github.com/KhronosGroup/Vulkan-Utility-Libraries/blob/vulkan-sdk-<query_version>/include/vulkan/vk_enum_string_helper.h
 query_version = "1.3.296.0"
 sdk_components = "Vulkan-Headers, Vulkan-Loader"
 

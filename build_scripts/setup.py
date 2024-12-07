@@ -85,3 +85,10 @@ if platform == "win32":
 	cp(cdl_root_dir +"/build/src/" +build_config +"/VkLayer_crash_diagnostic.dll", layer_dir +"/")
 else:
 	cp(cdl_root_dir +"/build/src/" +build_config +"/libVkLayer_crash_diagnostic.so", layer_dir +"/")
+
+add_pragma_module(
+    name = "pr_nsight_aftermath",
+    repositoryUrl = "https://github.com/Silverlan/pr_nsight_aftermath.git",
+    commitSha = "52b7eb1982f79b5e4e9e2034151f132d84ac1309",
+    branch = None
+)

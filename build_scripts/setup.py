@@ -52,6 +52,7 @@ args += ["-DVULKAN_SDK_CONFIG=" +normalize_path(vulkan_config)]
 args += ["-DVULKAN_SDK_COMPONENTS=" +normalize_path(sdk_components)]
 args += ["-DALLOW_EXTERNAL_SPIRV_TOOLS=1"]
 args += ["-DSPIRV_TOOLS_DIR=" +deps_dir +"/SPIRV-Tools"]
+args += ["-G",generator]
 
 print_msg("Configuring Vulkan SDK...")
 subprocess.run(["cmake"] +args,check=True)

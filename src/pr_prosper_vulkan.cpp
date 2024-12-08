@@ -34,7 +34,6 @@ DLLEXPORT bool initialize_render_api(const std::string &engineName, bool enableV
 			Con::cwar << "Failed to find pragma_attach in Nsight Aftermath" << Con::endl;
 			return;
 		}
-		std::string err;
 		if(ptrAttachPragma(err))
 			g_libNsightAftermath = lib;
 		else
@@ -42,5 +41,13 @@ DLLEXPORT bool initialize_render_api(const std::string &engineName, bool enableV
 	});
 	return true;
 }
-DLLEXPORT void pragma_detach() { g_libNsightAftermath = {}; }
+DLLEXPORT void pragma_detach()
+{
+	if(g_libNsightAftermath) {
+		auto *detach = g_libNsightAftermath->FindSymbolAddress<void (*)()>("pragma_detach");
+		if(detach)
+			detach();
+	}
+	g_libNsightAftermath = {};
+}
 };

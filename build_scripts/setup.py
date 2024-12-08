@@ -61,6 +61,7 @@ print_msg("Installing Vulkan SDK...")
 subprocess.run(["cmake","--install",normalize_path(vulkan_build_dir),"--config","Release"],check=True)
 
 cmake_args.append("-DVULKAN_SDK=" +normalize_path(vulkan_sdk_dir))
+cmake_args.append("-DDEPENDENCY_VULKAN_INCLUDE=" +normalize_path(vulkan_sdk_dir +"/include/"))
 
 ########## CrashDiagnosticLayer ##########
 cdl_root_dir = deps_dir +"/CrashDiagnosticLayer"
@@ -89,6 +90,6 @@ else:
 add_pragma_module(
     name = "pr_nsight_aftermath",
     repositoryUrl = "https://github.com/Silverlan/pr_nsight_aftermath.git",
-    commitSha = "52b7eb1982f79b5e4e9e2034151f132d84ac1309",
+    commitSha = "cd8f5e4cd744fec7c3171a9c39eddca285dfc05e",
     branch = None
 )

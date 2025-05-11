@@ -69,10 +69,10 @@ cdl_root_dir = deps_dir +"/CrashDiagnosticLayer"
 if not Path(cdl_root_dir).is_dir():
 	print_msg("CrashDiagnosticLayer not found. Downloading...")
 	os.chdir(deps_dir)
-	git_clone("https://github.com/LunarG/CrashDiagnosticLayer.git")
+	git_clone("https://github.com/Silverlan/CrashDiagnosticLayer.git", "fixes")
 
 os.chdir(cdl_root_dir)
-reset_to_commit("a36cce2")
+reset_to_commit("c231354")
 
 # Build
 print_msg("Building CrashDiagnosticLayer...")

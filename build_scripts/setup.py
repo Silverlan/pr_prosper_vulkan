@@ -72,7 +72,7 @@ if not Path(cdl_root_dir).is_dir():
 	git_clone("https://github.com/Silverlan/CrashDiagnosticLayer.git", branch = "fixes")
 
 os.chdir(cdl_root_dir)
-reset_to_commit("577948ff22c4ca44808fb47ccccf7c4e2f700ff1")
+reset_to_commit("2e7398cbba93133dad7073d55550cb9cdfc1d114")
 
 # Build
 print_msg("Building CrashDiagnosticLayer...")

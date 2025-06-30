@@ -4,6 +4,7 @@ from sys import platform
 import tarfile
 from pathlib import Path
 import urllib.request
+import shutil
 
 os.chdir(deps_dir)
 
@@ -61,8 +62,7 @@ subprocess.run(["cmake","--build",normalize_path(vulkan_build_dir),"--config","R
 print_msg("Installing Vulkan SDK...")
 subprocess.run(["cmake","--install",normalize_path(vulkan_build_dir),"--config","Release"],check=True)
 
-cmake_args.append("-DVULKAN_SDK=" +normalize_path(vulkan_sdk_dir))
-cmake_args.append("-DDEPENDENCY_VULKAN_INCLUDE=" +normalize_path(vulkan_sdk_dir +"/include/"))
+copy_prebuilt_directory(vulkan_sdk_dir, "vulkan")
 
 ########## CrashDiagnosticLayer ##########
 cdl_root_dir = deps_dir +"/CrashDiagnosticLayer"
@@ -91,6 +91,6 @@ else:
 add_pragma_module(
     name = "pr_nsight_aftermath",
     repositoryUrl = "https://github.com/Silverlan/pr_nsight_aftermath.git",
-    commitSha = "6c69010651c794378d7e8b8b25676cc31c30719b",
+    commitSha = "eb30b9308d03e1bcefb9500dfa9b15df639b0ef6",
     branch = None
 )

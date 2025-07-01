@@ -91,6 +91,6 @@ else:
 add_pragma_module(
     name = "pr_nsight_aftermath",
     repositoryUrl = "https://github.com/Silverlan/pr_nsight_aftermath.git",
-    commitSha = "eb30b9308d03e1bcefb9500dfa9b15df639b0ef6",
+    commitSha = "3473bdee2fc8f389cebd6b8d80975b11e82b7bae",
     branch = None
 )

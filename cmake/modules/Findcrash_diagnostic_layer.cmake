@@ -32,3 +32,7 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(${PCK}
   REQUIRED_VARS ${REQ_VARS}
 )
+
+if(${PCK}_FOUND)
+  set(${PCK}_LIBRARIES   ${${PCK}_LIBRARY})
+endif()

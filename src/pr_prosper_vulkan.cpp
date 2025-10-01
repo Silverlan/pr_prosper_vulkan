@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 #include <prosper_vulkan_definitions.hpp>
-#include <pragma/engine.h>
-#include <pragma/networkstate/networkstate.h>
-#include <pragma/console/conout.h>
 #include <sharedutils/util_library.hpp>
 #include <vk_context.hpp>
 

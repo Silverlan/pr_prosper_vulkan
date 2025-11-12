@@ -90,6 +90,6 @@ if build_all:
 add_pragma_module(
     name = "pr_nsight_aftermath",
     repositoryUrl = "https://github.com/Silverlan/pr_nsight_aftermath.git",
-    commitSha = "2517f96aee3bf66a79c1734a14bd13c38066a62c",
+    commitSha = "be71e816b82d3608ae6ea61d1dc0330070fd856b",
     branch = "feat/cxx_module"
 )

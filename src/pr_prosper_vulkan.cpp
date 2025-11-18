@@ -1,22 +1,12 @@
 // SPDX-FileCopyrightText: (c) 2020 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include <prosper_vulkan_definitions.hpp>
-#include <pragma/engine.h>
-#include <pragma/networkstate/networkstate.h>
-#include <pragma/console/conout.h>
-#include <sharedutils/util_library.hpp>
-#include <vk_context.hpp>
-
-#ifdef __linux__
-#define DLLEXPORT __attribute__((visibility("default")))
-#else
-#define DLLEXPORT __declspec(dllexport)
-#endif
+import pragma.prosper.vulkan;
+import pragma.shared;
 
 static std::shared_ptr<util::Library> g_libNsightAftermath;
 extern "C" {
-DLLEXPORT bool initialize_render_api(const std::string &engineName, bool enableValidation, std::shared_ptr<prosper::IPrContext> &outContext, std::string &errMsg)
+PR_EXPORT bool initialize_render_api(const std::string &engineName, bool enableValidation, std::shared_ptr<prosper::IPrContext> &outContext, std::string &errMsg)
 {
 	outContext = prosper::VlkContext::Create(engineName, enableValidation);
 	outContext->SetPreDeviceCreationCallback([](const prosper::util::VendorDeviceInfo &info) {
@@ -40,7 +30,7 @@ DLLEXPORT bool initialize_render_api(const std::string &engineName, bool enableV
 	});
 	return true;
 }
-DLLEXPORT void pragma_detach()
+PR_EXPORT void pragma_detach()
 {
 	if(g_libNsightAftermath) {
 		auto *detach = g_libNsightAftermath->FindSymbolAddress<void (*)()>("pragma_detach");

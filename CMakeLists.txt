@@ -5,7 +5,6 @@ pr_add_module(${PROJ_NAME} SHARED "modules/graphics/vulkan/")
 
 pr_add_dependency(${PROJ_NAME} client TARGET PUBLIC)
 
-pr_add_headers(${PROJ_NAME} "include/")
 pr_add_sources(${PROJ_NAME} "src/")
 
 add_subdirectory(external_libs/prosper_vulkan)

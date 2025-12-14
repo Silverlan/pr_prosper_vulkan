@@ -4,7 +4,7 @@
 import pragma.prosper.vulkan;
 import pragma.shared;
 
-static std::shared_ptr<util::Library> g_libNsightAftermath;
+static std::shared_ptr<pragma::util::Library> g_libNsightAftermath;
 extern "C" {
 PR_EXPORT bool initialize_render_api(const std::string &engineName, bool enableValidation, std::shared_ptr<prosper::IPrContext> &outContext, std::string &errMsg)
 {

@@ -15,18 +15,18 @@ PR_EXPORT bool initialize_render_api(const std::string &engineName, bool enableV
 		std::string err;
 		auto lib = pragma::get_engine()->GetClientState()->LoadLibraryModule("nsight_aftermath/pr_nsight_aftermath", {}, &err);
 		if(!lib) {
-			Con::cwar << "Failed to load Nsight Aftermath: " << err << Con::endl;
+			Con::CWAR << "Failed to load Nsight Aftermath: " << err << Con::endl;
 			return;
 		}
 		auto *ptrAttachPragma = lib->FindSymbolAddress<bool (*)(std::string &)>("pragma_attach");
 		if(!ptrAttachPragma) {
-			Con::cwar << "Failed to find pragma_attach in Nsight Aftermath" << Con::endl;
+			Con::CWAR << "Failed to find pragma_attach in Nsight Aftermath" << Con::endl;
 			return;
 		}
 		if(ptrAttachPragma(err))
 			g_libNsightAftermath = lib;
 		else
-			Con::cwar << "Failed to initialize Nsight Aftermath: " << err << Con::endl;
+			Con::CWAR << "Failed to initialize Nsight Aftermath: " << err << Con::endl;
 	});
 	return true;
 }

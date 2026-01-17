@@ -86,9 +86,3 @@ if build_all:
 	res_dir = get_library_root_dir("crash_diagnostic_layer") +"resources"
 	mkpath(res_dir)
 	cp(cdl_root_dir +"/build/src/json/crash_diagnostic_layer.json", res_dir +"/VK_LAYER_LUNARG_crash_diagnostic.json")
-
-add_pragma_module(
-    name = "pr_nsight_aftermath",
-    repositoryUrl = "https://github.com/Silverlan/pr_nsight_aftermath.git",
-    commitSha = "52231161cfd48511ca797e266a1e7cf684b1806b"
-)

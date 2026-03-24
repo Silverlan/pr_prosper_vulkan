@@ -1,6 +1,6 @@
 include(${CMAKE_SOURCE_DIR}/cmake/pr_common.cmake)
 
-pr_fetch_module("pr_nsight_aftermath" "https://github.com/Silverlan/pr_nsight_aftermath" "52231161cfd48511ca797e266a1e7cf684b1806b")
+pr_fetch_module("pr_nsight_aftermath" "https://github.com/Silverlan/pr_nsight_aftermath" "66615caf80d9bff53d8347055a8c00d820fdd585")
 
 set(PROJ_NAME pr_prosper_vulkan)
 pr_add_module(${PROJ_NAME} "modules/graphics/vulkan/")
